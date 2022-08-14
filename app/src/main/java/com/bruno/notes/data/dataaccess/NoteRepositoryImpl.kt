@@ -3,7 +3,7 @@ package com.bruno.notes.data.dataaccess
 import com.bruno.notes.data.model.Note
 
 class NoteRepositoryImpl() : RepositoryInt<Note> {
-    private var currentId = 0;
+    private var currentId = 0
 
     init {
         currentId = DumbDB.DATA.size
