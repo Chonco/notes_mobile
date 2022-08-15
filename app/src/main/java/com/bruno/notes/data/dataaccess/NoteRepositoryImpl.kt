@@ -1,8 +1,6 @@
 package com.bruno.notes.data.dataaccess
 
 import com.bruno.notes.data.model.Note
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class NoteRepositoryImpl() : RepositoryInt<Note> {
@@ -13,7 +11,7 @@ class NoteRepositoryImpl() : RepositoryInt<Note> {
     }
 
     override fun getAll(): List<Note> {
-        return DumbDB.DATA.toMutableList();
+        return DumbDB.DATA.toMutableList()
     }
 
     override fun getById(id: Int): Note {
@@ -34,9 +32,9 @@ class NoteRepositoryImpl() : RepositoryInt<Note> {
     }
 
     override fun save(input: Note): Int {
-        input.id = currentId;
+        input.id = currentId
         input.createdAt = Date()
-        currentId++;
+        currentId++
         DumbDB.DATA.add(input)
 
         return input.id

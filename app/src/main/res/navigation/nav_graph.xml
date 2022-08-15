@@ -12,21 +12,22 @@
         tools:layout="@layout/notes_list_fragment">
 
         <action
-            android:id="@+id/action_ListFragment_to_AddFragment"
-            app:destination="@id/add_note_fragment" />
-        <argument
-            android:name="noteId"
-            app:argType="integer"
-            android:defaultValue="-1" />
+            android:id="@+id/action_ListFragment_to_DetailsFragment"
+            app:destination="@id/note_details_fragment" />
     </fragment>
     <fragment
-        android:id="@+id/add_note_fragment"
+        android:id="@+id/note_details_fragment"
         android:name="com.bruno.notes.SecondFragment"
         android:label="@string/add_notes_fragment_label"
         tools:layout="@layout/fragment_second">
 
         <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
+            android:id="@+id/action_DetailsFragment_to_ListFragment"
             app:destination="@id/notes_list_fragment" />
+
+        <argument
+            android:name="noteId"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
 </navigation>

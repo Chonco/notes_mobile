@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
+import com.bruno.notes.NotesListFragmentDirections
 import com.bruno.notes.R
-import com.bruno.notes.SecondFragmentDirections
 import com.bruno.notes.data.dataaccess.NoteRepositoryImpl
 import com.bruno.notes.data.model.Note
 import com.google.android.material.button.MaterialButton
@@ -37,7 +37,8 @@ class NotesAdapter(
             content.text = note.body
 
             view.setOnClickListener {
-                val action = SecondFragmentDirections.actionSecondFragmentToFirstFragment(note.id)
+                val action =
+                    NotesListFragmentDirections.actionListFragmentToDetailsFragment(note.id)
                 navController.navigate(action)
             }
 
