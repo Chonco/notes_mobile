@@ -33,7 +33,7 @@ class NotesAdapter(
 
         fun render(note: Note) {
             cardTitle.text = note.title
-            creationDate.text = SimpleDateFormat("d. MMM").format(note.createdAt)
+            creationDate.text = SimpleDateFormat("d MMM").format(note.createdAt)
             content.text = note.body
 
             view.setOnClickListener {
