@@ -1,6 +1,9 @@
 package com.bruno.notes.data.dataaccess
 
 import com.bruno.notes.data.model.Note
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
 class NoteRepositoryImpl() : RepositoryInt<Note> {
     private var currentId = 0
@@ -32,6 +35,7 @@ class NoteRepositoryImpl() : RepositoryInt<Note> {
 
     override fun save(input: Note): Int {
         input.id = currentId;
+        input.createdAt = Date()
         currentId++;
         DumbDB.DATA.add(input)
 
