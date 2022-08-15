@@ -3,26 +3,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/notes_list_fragment">
 
     <fragment
-        android:id="@+id/FirstFragment"
-        android:name="com.bruno.notes.FirstFragment"
-        android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first">
+        android:id="@+id/notes_list_fragment"
+        android:name="com.bruno.notes.NotesListFragment"
+        android:label="@string/notes_list_fragment_label"
+        tools:layout="@layout/notes_list_fragment">
 
         <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
+            android:id="@+id/action_ListFragment_to_DetailsFragment"
+            app:destination="@id/note_details_fragment" />
     </fragment>
     <fragment
-        android:id="@+id/SecondFragment"
+        android:id="@+id/note_details_fragment"
         android:name="com.bruno.notes.SecondFragment"
-        android:label="@string/second_fragment_label"
+        android:label="@string/add_notes_fragment_label"
         tools:layout="@layout/fragment_second">
 
         <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
+            android:id="@+id/action_DetailsFragment_to_ListFragment"
+            app:destination="@id/notes_list_fragment" />
+
+        <argument
+            android:name="noteId"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
 </navigation>

@@ -1,16 +1,17 @@
 package com.bruno.notes.data.dataaccess
 
 import com.bruno.notes.data.model.Note
+import java.util.*
 
 class NoteRepositoryImpl() : RepositoryInt<Note> {
-    private var currentId = 0;
+    private var currentId = 0
 
     init {
         currentId = DumbDB.DATA.size
     }
 
     override fun getAll(): List<Note> {
-        return DumbDB.DATA.toMutableList();
+        return DumbDB.DATA.toMutableList()
     }
 
     override fun getById(id: Int): Note {
@@ -31,8 +32,9 @@ class NoteRepositoryImpl() : RepositoryInt<Note> {
     }
 
     override fun save(input: Note): Int {
-        input.id = currentId;
-        currentId++;
+        input.id = currentId
+        input.createdAt = Date()
+        currentId++
         DumbDB.DATA.add(input)
 
         return input.id
