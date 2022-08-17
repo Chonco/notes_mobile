@@ -38,7 +38,7 @@ class NotesAdapter(
 
             view.setOnClickListener {
                 val action =
-                    NotesListFragmentDirections.actionListFragmentToDetailsFragment(note.id)
+                    NotesListFragmentDirections.toNoteDetails(note.id)
                 navController.navigate(action)
             }
 

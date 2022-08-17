@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.bruno.notes.adapters.NotesAdapter
 import com.bruno.notes.data.dataaccess.NoteRepositoryImpl
 import com.bruno.notes.databinding.NotesListFragmentBinding
@@ -61,7 +60,7 @@ class NotesListFragment : Fragment() {
         }
 
         binding.addNote.setOnClickListener {
-            findNavController().navigate(R.id.action_ListFragment_to_DetailsFragment)
+            findNavController().navigate(R.id.to_note_details)
         }
     }
 

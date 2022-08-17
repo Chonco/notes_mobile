@@ -4,7 +4,7 @@
     <!-- Strings used for fragments for navigation -->
     <string name="notes_list_fragment_label">Notes List</string>
     <string name="notes_details_fragment_label">Note\'s Details</string>
-    <string name="add_notes_fragment_label">Add Note</string>
+    <string name="note_details_fragment_label">Note Details</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
