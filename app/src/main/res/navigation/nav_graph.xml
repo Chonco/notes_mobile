@@ -13,7 +13,9 @@
 
         <action
             android:id="@+id/to_note_details"
-            app:destination="@id/note_details_fragment" />
+            app:destination="@id/note_details_fragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
 
     </fragment>
     <fragment
@@ -21,10 +23,6 @@
         android:name="com.bruno.notes.NoteDetailsFragment"
         android:label="@string/note_details_fragment_label"
         tools:layout="@layout/note_details_fragment">
-
-        <action
-            android:id="@+id/return_to_list"
-            app:destination="@id/notes_list_fragment" />
 
         <argument
             android:name="noteId"

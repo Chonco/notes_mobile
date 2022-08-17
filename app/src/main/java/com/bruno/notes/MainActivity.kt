@@ -9,7 +9,6 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.bruno.notes.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -29,12 +28,6 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
-
-        val mainLayout = findViewById<CoordinatorLayout>(R.id.main_layout)
-        val resourceId = applicationContext.resources
-            .getIdentifier("navigation_bar_height", "dimen", "android")
-        val navigationBarHeight = applicationContext.resources.getDimension(resourceId)
-        mainLayout.setPadding(0, 0, 0, navigationBarHeight.toInt())
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
