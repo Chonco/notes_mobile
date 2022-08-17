@@ -49,7 +49,7 @@ class NoteDetailsFragment() : Fragment() {
     }
 
     override fun onDestroyView() {
-        if (binding.noteBody.text.isNotEmpty()) {
+        if (binding.noteBody.text?.isNotEmpty() == true) {
             currentNote.title = binding.noteTitle.text.toString()
             currentNote.body = binding.noteBody.text.toString()
 
