@@ -17,12 +17,11 @@ import java.text.SimpleDateFormat
 class NotesAdapter(
     private val activity: Activity,
     private val noteCardLayout: Int,
-    private val repository: NoteRepositoryImpl,
     val navController: NavController
 ) :
     RecyclerView.Adapter<NotesAdapter.NotesViewHolder>() {
 
-    private val allNotes: MutableList<Note> = this.repository.getAll().toMutableList()
+    private lateinit var allNotes: MutableList<Note>
 
     inner class NotesViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
 
@@ -49,22 +48,24 @@ class NotesAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotesViewHolder {
+        allNotes = NoteRepositoryImpl.getInstance().getAll().toMutableList()
         val layoutInflater = LayoutInflater.from(activity)
             .inflate(noteCardLayout, parent, false)
         return NotesViewHolder(layoutInflater)
     }
 
     override fun onBindViewHolder(holder: NotesViewHolder, position: Int) {
+        println(allNotes[position])
         holder.render(allNotes[position])
     }
 
     override fun getItemCount(): Int {
-        return repository.getAll().size
+        return NoteRepositoryImpl.getInstance().getAll().size
     }
 
     private fun deleteCurrentNote(note: Note) {
         val index = allNotes.indexOf(note)
-        repository.delete(note.id)
+        NoteRepositoryImpl.getInstance().delete(note.id)
         allNotes.removeAt(index)
         notifyItemRemoved(index)
     }

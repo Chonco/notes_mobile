@@ -7,7 +7,19 @@ class NoteRepositoryImpl() : RepositoryInt<Note> {
     private var currentId = 0
 
     init {
-        currentId = DumbDB.DATA.size
+        currentId = DumbDB.DATA[DumbDB.DATA.size - 1].id + 1
+    }
+
+    companion object {
+        private var instance = NoteRepositoryImpl()
+
+        fun getInstance(): NoteRepositoryImpl {
+            return instance
+        }
+
+        fun updateInstance() {
+            instance = NoteRepositoryImpl()
+        }
     }
 
     override fun getAll(): List<Note> {
@@ -16,7 +28,6 @@ class NoteRepositoryImpl() : RepositoryInt<Note> {
 
     override fun getById(id: Int): Note {
         return DumbDB.DATA.first { note -> note.id == id }
-            .copy()
     }
 
     override fun getByTitle(title: String): List<Note> {
@@ -45,7 +56,7 @@ class NoteRepositoryImpl() : RepositoryInt<Note> {
 
         note.title = toUpdate.title
         note.body = toUpdate.body
-        return note.copy()
+        return note
     }
 
     override fun delete(id: Int): Boolean {

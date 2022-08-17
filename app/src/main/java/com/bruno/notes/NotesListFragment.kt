@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bruno.notes.adapters.NotesAdapter
-import com.bruno.notes.data.dataaccess.NoteRepositoryImpl
 import com.bruno.notes.databinding.NotesListFragmentBinding
 import com.google.android.material.snackbar.Snackbar
 
@@ -23,8 +22,6 @@ class NotesListFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-    private lateinit var repository: NoteRepositoryImpl
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -37,8 +34,6 @@ class NotesListFragment : Fragment() {
                 .setAction("Action", null).show()
         }
 
-        repository = NoteRepositoryImpl()
-
         return binding.root
     }
 
@@ -48,7 +43,6 @@ class NotesListFragment : Fragment() {
         val notesAdapter = NotesAdapter(
             this.requireActivity(),
             R.layout.note_preview_card,
-            repository,
             findNavController()
         )
 
