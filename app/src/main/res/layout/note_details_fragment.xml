@@ -4,18 +4,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     tools:context=".NoteDetailsFragment">
 
     <EditText
         android:id="@+id/note_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="@string/title_hint"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
+        android:id="@+id/note_body"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:background="@null"
+        android:focusedByDefault="true"
         android:gravity="top|start"
         android:inputType="textMultiLine"
         android:scrollbars="vertical"
