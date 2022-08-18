@@ -5,16 +5,25 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bruno.notes.adapters.NotesAdapter
 import com.bruno.notes.databinding.NotesListFragmentBinding
-import com.google.android.material.snackbar.Snackbar
+import com.bruno.notes.viewmodel.NoteViewModel
+import com.bruno.notes.viewmodel.NoteViewModelFactory
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
 class NotesListFragment : Fragment() {
+
+    private val viewModel: NoteViewModel by activityViewModels {
+        NoteViewModelFactory(
+            (activity?.application as NotesApplication).database.noteDao()
+        )
+    }
 
     private var _binding: NotesListFragmentBinding? = null
 
@@ -27,30 +36,25 @@ class NotesListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = NotesListFragmentBinding.inflate(inflater, container, false)
-
-        binding.addNote.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAnchorView(R.id.add_note)
-                .setAction("Action", null).show()
-        }
-
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val notesAdapter = NotesAdapter(
-            this.requireActivity(),
-            R.layout.note_preview_card,
-            findNavController()
-        )
+        val notesAdapter = NotesAdapter({
+            val action = NotesListFragmentDirections.toNoteDetails(noteId = it.id)
+            view.findNavController().navigate(action)
+        }, {
+            viewModel.deleteNote(it)
+        })
 
-        val recyclerLayoutManager = GridLayoutManager(activity, 2)
+        val recyclerView = binding.notesListRecyclerView
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
+        recyclerView.adapter = notesAdapter
 
-        binding.notesListRecyclerView.apply {
-            layoutManager = recyclerLayoutManager
-            adapter = notesAdapter
+        viewModel.allItems.observe(this.viewLifecycleOwner) { notes ->
+            notes.let { notesAdapter.submitList(it) }
         }
 
         binding.addNote.setOnClickListener {

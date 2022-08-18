@@ -6,17 +6,26 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
-import com.bruno.notes.data.dataaccess.NoteRepositoryImpl
-import com.bruno.notes.data.model.Note
+import com.bruno.notes.database.note.Note
 import com.bruno.notes.databinding.NoteDetailsFragmentBinding
+import com.bruno.notes.viewmodel.NoteViewModel
+import com.bruno.notes.viewmodel.NoteViewModelFactory
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
  */
-class NoteDetailsFragment() : Fragment() {
+class NoteDetailsFragment : Fragment() {
     private val args: NoteDetailsFragmentArgs by navArgs()
-    private lateinit var currentNote: Note
+
+    private val viewModel: NoteViewModel by activityViewModels {
+        NoteViewModelFactory(
+            (activity?.application as NotesApplication).database.noteDao()
+        )
+    }
+
+    private lateinit var note: Note
 
     private var _binding: NoteDetailsFragmentBinding? = null
 
@@ -30,37 +39,56 @@ class NoteDetailsFragment() : Fragment() {
     ): View {
         _binding = NoteDetailsFragmentBinding.inflate(inflater, container, false)
 
-        currentNote = if (args.noteId != -1)
-            NoteRepositoryImpl.getInstance().getById(args.noteId)
-        else Note()
-
         return binding.root
+    }
+
+    private fun bind(note: Note) {
+        val editableFactory = Editable.Factory.getInstance()
+        binding.apply {
+            noteTitle.text = editableFactory.newEditable(note.title)
+            noteBody.text = editableFactory.newEditable(note.body)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val editableFactory = Editable.Factory.getInstance()
-
-        binding.noteTitle.text = editableFactory.newEditable(currentNote.title)
-        binding.noteBody.text = editableFactory.newEditable(currentNote.body)
+        if (!isNewNote()) {
+            viewModel.getNote(args.noteId).observe(this.viewLifecycleOwner) { selectedNote ->
+                note = selectedNote
+                bind(note)
+            }
+        }
 
         binding.noteBody.requestFocus()
     }
 
     override fun onDestroyView() {
-        if (binding.noteBody.text?.isNotEmpty() == true) {
-            currentNote.title = binding.noteTitle.text.toString()
-            currentNote.body = binding.noteBody.text.toString()
-
-            if (currentNote.id == -1)
-                NoteRepositoryImpl.getInstance().save(currentNote)
+        if (isEntryValid()) {
+            if (isNewNote())
+                viewModel.addNewNote(
+                    binding.noteTitle.text.toString(),
+                    binding.noteBody.text.toString()
+                )
             else
-                NoteRepositoryImpl.getInstance().update(currentNote.id, currentNote)
+                viewModel.updateNote(
+                    note.id,
+                    binding.noteTitle.text.toString(),
+                    binding.noteBody.text.toString(),
+                    note.createdAt
+                )
         }
 
         super.onDestroyView()
 
         _binding = null
+    }
+
+    private fun isEntryValid(): Boolean {
+        return binding.noteBody.text?.isNotEmpty() == true
+    }
+
+    private fun isNewNote(): Boolean {
+        return args.noteId == -1
     }
 }
