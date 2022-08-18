@@ -12,18 +12,17 @@
         tools:layout="@layout/notes_list_fragment">
 
         <action
-            android:id="@+id/action_ListFragment_to_DetailsFragment"
-            app:destination="@id/note_details_fragment" />
+            android:id="@+id/to_note_details"
+            app:destination="@id/note_details_fragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+
     </fragment>
     <fragment
         android:id="@+id/note_details_fragment"
-        android:name="com.bruno.notes.SecondFragment"
-        android:label="@string/add_notes_fragment_label"
-        tools:layout="@layout/fragment_second">
-
-        <action
-            android:id="@+id/action_DetailsFragment_to_ListFragment"
-            app:destination="@id/notes_list_fragment" />
+        android:name="com.bruno.notes.NoteDetailsFragment"
+        android:label="@string/note_details_fragment_label"
+        tools:layout="@layout/note_details_fragment">
 
         <argument
             android:name="noteId"

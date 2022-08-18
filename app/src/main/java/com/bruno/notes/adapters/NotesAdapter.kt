@@ -1,71 +1,63 @@
 package com.bruno.notes.adapters
 
-import android.app.Activity
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.navigation.NavController
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bruno.notes.NotesListFragmentDirections
-import com.bruno.notes.R
-import com.bruno.notes.data.dataaccess.NoteRepositoryImpl
-import com.bruno.notes.data.model.Note
-import com.google.android.material.button.MaterialButton
+import com.bruno.notes.database.note.Note
+import com.bruno.notes.databinding.NotePreviewCardBinding
 import java.text.SimpleDateFormat
 
 class NotesAdapter(
-    private val activity: Activity,
-    private val noteCardLayout: Int,
-    private val repository: NoteRepositoryImpl,
-    val navController: NavController
+    private val onItemClicked: (Note) -> Unit,
+    private val onItemToDelete: (Note) -> Unit
 ) :
-    RecyclerView.Adapter<NotesAdapter.NotesViewHolder>() {
+    ListAdapter<Note, NotesAdapter.NotesViewHolder>(DiffCallback) {
 
-    private val allNotes: MutableList<Note> = this.repository.getAll().toMutableList()
-
-    inner class NotesViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
-
-        private val cardTitle: TextView = view.findViewById(R.id.note_card_title)
-        private val creationDate: TextView = view.findViewById(R.id.note_creation_date)
-        private val content: TextView = view.findViewById(R.id.note_card_content)
-        private val deleteButton: MaterialButton = view.findViewById(R.id.delete_note_button)
-
-        fun render(note: Note) {
-            cardTitle.text = note.title
-            creationDate.text = SimpleDateFormat("d MMM").format(note.createdAt)
-            content.text = note.body
-
-            view.setOnClickListener {
-                val action =
-                    NotesListFragmentDirections.actionListFragmentToDetailsFragment(note.id)
-                navController.navigate(action)
+    companion object {
+        private val DiffCallback = object : DiffUtil.ItemCallback<Note>() {
+            override fun areItemsTheSame(oldItem: Note, newItem: Note): Boolean {
+                return oldItem.id == newItem.id
             }
 
-            deleteButton.setOnClickListener {
-                deleteCurrentNote(note)
+            override fun areContentsTheSame(oldItem: Note, newItem: Note): Boolean {
+                return oldItem.body == newItem.body && oldItem.title == newItem.title
+            }
+        }
+    }
+
+    inner class NotesViewHolder(private var binding: NotePreviewCardBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(note: Note) {
+            binding.apply {
+                noteCardTitle.text = note.title
+                noteCardContent.text = note.body
+                noteCreationDate.text =
+                    SimpleDateFormat("d MMM").format(note.updatedAt)
+                deleteNoteButton.setOnClickListener { onItemToDelete(note) }
             }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotesViewHolder {
-        val layoutInflater = LayoutInflater.from(activity)
-            .inflate(noteCardLayout, parent, false)
-        return NotesViewHolder(layoutInflater)
+        val viewHolder = NotesViewHolder(
+            NotePreviewCardBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        )
+
+        viewHolder.itemView.setOnClickListener {
+            val position = viewHolder.adapterPosition
+            onItemClicked(getItem(position))
+        }
+
+        return viewHolder
     }
 
     override fun onBindViewHolder(holder: NotesViewHolder, position: Int) {
-        holder.render(allNotes[position])
-    }
-
-    override fun getItemCount(): Int {
-        return repository.getAll().size
-    }
-
-    private fun deleteCurrentNote(note: Note) {
-        val index = allNotes.indexOf(note)
-        repository.delete(note.id)
-        allNotes.removeAt(index)
-        notifyItemRemoved(index)
+        holder.bind(getItem(position))
     }
 }
