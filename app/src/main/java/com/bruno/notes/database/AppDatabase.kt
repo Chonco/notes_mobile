@@ -4,13 +4,13 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.bruno.notes.database.image.Image
 import com.bruno.notes.database.note.Note
-import com.bruno.notes.database.note.NoteDao
 
-@Database(entities = arrayOf(Note::class), version = 1)
+@Database(entities = [Note::class, Image::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun noteDao(): NoteDao
+    abstract fun noteDao(): NotesDao
 
     companion object {
         @Volatile

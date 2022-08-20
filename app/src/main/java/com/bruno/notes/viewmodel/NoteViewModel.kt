@@ -2,23 +2,23 @@ package com.bruno.notes.viewmodel
 
 import androidx.lifecycle.*
 import com.bruno.notes.database.note.Note
-import com.bruno.notes.database.note.NoteDao
+import com.bruno.notes.database.NotesDao
 import kotlinx.coroutines.launch
 import java.util.*
 
-class NoteViewModel(private val noteDao: NoteDao) : ViewModel() {
-    val allItems: LiveData<List<Note>> = noteDao.getAllSortedByCreatedAt().asLiveData()
+class NoteViewModel(private val notesDao: NotesDao) : ViewModel() {
+    val allItems: LiveData<List<Note>> = notesDao.getAllSortedByCreatedAt().asLiveData()
 
     private fun insertNote(note: Note) {
-        viewModelScope.launch { noteDao.insert(note) }
+        viewModelScope.launch { notesDao.insert(note) }
     }
 
     private fun updateNote(note: Note) {
-        viewModelScope.launch { noteDao.update(note) }
+        viewModelScope.launch { notesDao.update(note) }
     }
 
     fun deleteNote(note: Note) {
-        viewModelScope.launch { noteDao.delete(note) }
+        viewModelScope.launch { notesDao.delete(note) }
     }
 
     private fun getUpdatedNoteEntry(
@@ -37,15 +37,15 @@ class NoteViewModel(private val noteDao: NoteDao) : ViewModel() {
     }
 
     fun getAll(): LiveData<List<Note>> {
-        return noteDao.getAll().asLiveData()
+        return notesDao.getAll().asLiveData()
     }
 
     fun getNote(id: Int): LiveData<Note> {
-        return noteDao.getById(id).asLiveData()
+        return notesDao.getById(id).asLiveData()
     }
 
     fun search(searchTerm: String): LiveData<List<Note>> {
-        return noteDao.search(searchTerm).asLiveData()
+        return notesDao.search(searchTerm).asLiveData()
     }
 
     fun addNewNote(title: String, body: String) {
@@ -63,10 +63,10 @@ class NoteViewModel(private val noteDao: NoteDao) : ViewModel() {
     }
 }
 
-class NoteViewModelFactory(private val noteDao: NoteDao) : ViewModelProvider.Factory {
+class NoteViewModelFactory(private val notesDao: NotesDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(NoteViewModel::class.java))
-            return NoteViewModel(noteDao) as T
+            return NoteViewModel(notesDao) as T
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
