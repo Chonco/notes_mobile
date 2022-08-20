@@ -7,9 +7,17 @@
     tools:context=".NotesListFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/notes_list_constraint_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/search_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/notes_list_recycler_view"

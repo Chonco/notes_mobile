@@ -1,11 +1,14 @@
 package com.bruno.notes
 
 import android.os.Bundle
+import android.view.*
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -31,6 +34,8 @@ class NotesListFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    private lateinit var notesAdapter: NotesAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -42,7 +47,7 @@ class NotesListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val notesAdapter = NotesAdapter({
+        notesAdapter = NotesAdapter({
             val action = NotesListFragmentDirections.toNoteDetails(noteId = it.id)
             view.findNavController().navigate(action)
         }, {
@@ -60,6 +65,33 @@ class NotesListFragment : Fragment() {
         binding.addNote.setOnClickListener {
             findNavController().navigate(R.id.to_note_details)
         }
+
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.notes_list_menu, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.search_menu_option -> {
+                        val constraintSet = ConstraintSet()
+                        constraintSet.clone(binding.notesListConstraintLayout)
+                        constraintSet.connect(
+                            R.id.notes_list_recycler_view,
+                            ConstraintSet.TOP,
+                            R.id.search_input,
+                            ConstraintSet.BOTTOM
+                        )
+                        constraintSet.applyTo(binding.notesListConstraintLayout)
+
+                        binding.searchInput.visibility = View.VISIBLE
+                        return true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     override fun onDestroyView() {
