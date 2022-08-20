@@ -1,6 +1,8 @@
 package com.bruno.notes
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -58,13 +60,21 @@ class NotesListFragment : Fragment() {
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         recyclerView.adapter = notesAdapter
 
-        viewModel.allItems.observe(this.viewLifecycleOwner) { notes ->
-            notes.let { notesAdapter.submitList(it) }
-        }
+        observeAllNotes()
 
         binding.addNote.setOnClickListener {
             findNavController().navigate(R.id.to_note_details)
         }
+
+        binding.searchInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun afterTextChanged(searchInput: Editable?) {
+                observeSearchNotes(searchInput.toString())
+            }
+        })
 
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {
@@ -75,17 +85,7 @@ class NotesListFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.search_menu_option -> {
-                        val constraintSet = ConstraintSet()
-                        constraintSet.clone(binding.notesListConstraintLayout)
-                        constraintSet.connect(
-                            R.id.notes_list_recycler_view,
-                            ConstraintSet.TOP,
-                            R.id.search_input,
-                            ConstraintSet.BOTTOM
-                        )
-                        constraintSet.applyTo(binding.notesListConstraintLayout)
-
-                        binding.searchInput.visibility = View.VISIBLE
+                        showSearchInput()
                         return true
                     }
                     else -> false
@@ -97,5 +97,31 @@ class NotesListFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun showSearchInput() {
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(binding.notesListConstraintLayout)
+        constraintSet.connect(
+            R.id.notes_list_recycler_view,
+            ConstraintSet.TOP,
+            R.id.search_input,
+            ConstraintSet.BOTTOM
+        )
+        constraintSet.applyTo(binding.notesListConstraintLayout)
+
+        binding.searchInput.visibility = View.VISIBLE
+    }
+
+    private fun observeAllNotes() {
+        viewModel.allItems.observe(this.viewLifecycleOwner) { notes ->
+            notes.let { notesAdapter.submitList(it) }
+        }
+    }
+
+    private fun observeSearchNotes(searchInput: String) {
+        viewModel.search(searchInput).observe(viewLifecycleOwner) { notes ->
+            notes.let { notesAdapter.submitList(it) }
+        }
     }
 }
