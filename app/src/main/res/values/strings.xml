@@ -8,6 +8,12 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
     <string name="title_hint">Title</string>
+    <string name="add_image_menu_option">Add Image</string>
+    <string name="search_menu_option">Search</string>
+    <string name="delete_option_text">Delete</string>
+    <string name="cancel_option_text">Cancel</string>
+    <string name="delete_body_alert_title">Delete body content</string>
+    <string name="delete_body_alert_body">Are you sure you want to delete yours note\'s content</string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris

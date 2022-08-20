@@ -1,5 +1,6 @@
 package com.bruno.notes
 
+import android.app.AlertDialog
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -7,11 +8,12 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.text.Editable
+import android.view.*
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.navArgs
 import com.bruno.notes.database.note.Note
 import com.bruno.notes.databinding.NoteDetailsFragmentBinding
@@ -59,8 +61,23 @@ class NoteDetailsFragment : Fragment() {
 
             println("Aceleración registrada: $acceleration")
 
-            if (acceleration > 12) {
-                binding.noteBody.text = Editable.Factory.getInstance().newEditable("")
+            if (acceleration > 16) {
+                onPause()
+                activity?.let {
+                    val builder = AlertDialog.Builder(it)
+                    builder.apply {
+                        setTitle(R.string.delete_body_alert_title)
+                        setMessage(R.string.delete_body_alert_body)
+                        setPositiveButton(R.string.delete_option_text) { _, _ ->
+                            binding.noteBody.text = Editable.Factory.getInstance().newEditable("")
+                            onResume()
+                        }
+                        setNegativeButton(R.string.cancel_option_text) { _, _ ->
+                            onResume()
+                        }
+                    }
+                        .create()
+                }?.show()
             }
         }
 
@@ -105,6 +122,23 @@ class NoteDetailsFragment : Fragment() {
                 bind(note)
             }
         }
+
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.note_details_menu, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.add_image_option -> {
+
+                        return true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         binding.noteBody.requestFocus()
     }
