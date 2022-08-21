@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.core.view.MenuHost
@@ -50,7 +49,7 @@ class NotesListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         notesAdapter = NotesAdapter({
-            val action = NotesListFragmentDirections.toNoteDetails(noteId = it.id)
+            val action = NotesListFragmentDirections.toNoteDetails(noteId = it.id.toInt())
             view.findNavController().navigate(action)
         }, {
             viewModel.deleteNote(it)

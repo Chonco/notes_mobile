@@ -8,7 +8,7 @@ import java.sql.Date
 @TypeConverters(value = arrayOf(DateConverter::class))
 data class Note(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val id: Long = 0,
 
     @ColumnInfo(name = "note_title")
     val title: String,

@@ -6,23 +6,23 @@ import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import android.view.*
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bruno.notes.database.note.Note
 import com.bruno.notes.databinding.NoteDetailsFragmentBinding
+import com.bruno.notes.helpers.TakePictureAndDetailsCommunication
 import com.bruno.notes.listeners.SensorShakeListener
 import com.bruno.notes.viewmodel.NoteViewModel
 import com.bruno.notes.viewmodel.NoteViewModelFactory
 import java.util.*
 
-/**
- * A simple [Fragment] subclass as the second destination in the navigation.
- */
 class NoteDetailsFragment : Fragment() {
     private val args: NoteDetailsFragmentArgs by navArgs()
 
@@ -32,7 +32,8 @@ class NoteDetailsFragment : Fragment() {
         )
     }
 
-    private lateinit var note: Note
+    private var noteId: Long = -1
+    private lateinit var noteCreatedAt: Date
 
     private var _binding: NoteDetailsFragmentBinding? = null
 
@@ -41,6 +42,8 @@ class NoteDetailsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var sensorManager: SensorManager? = null
+
+    val takePictureCommunication = TakePictureAndDetailsCommunication.getInstance()
 
     private val sensorListener = SensorShakeListener {
         onPause()
@@ -89,10 +92,21 @@ class NoteDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        Log.i(TAG, "onViewCreated Method")
+
         if (!isNewNote()) {
-            viewModel.getNote(args.noteId).observe(this.viewLifecycleOwner) { selectedNote ->
-                note = selectedNote
-                bind(note)
+            viewModel.getNote(args.noteId.toLong())
+                .observe(this.viewLifecycleOwner) { selectedNote ->
+                    noteId = selectedNote.id
+                    noteCreatedAt = selectedNote.createdAt
+                    bind(selectedNote)
+                }
+        } else {
+            viewModel.createEmptyNote().observe(this.viewLifecycleOwner) {
+                noteId = it
+                viewModel.getNote(it).observe(this.viewLifecycleOwner) { emptyNote ->
+                    noteCreatedAt = emptyNote.createdAt
+                }
             }
         }
 
@@ -105,7 +119,9 @@ class NoteDetailsFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.add_image_option -> {
-
+                        val action =
+                            NoteDetailsFragmentDirections.takePicture(noteId = noteId.toInt())
+                        view.findNavController().navigate(action)
                         return true
                     }
                     else -> false
@@ -118,6 +134,7 @@ class NoteDetailsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        Log.i(TAG, "onResumeMethod")
         sensorManager!!.registerListener(
             sensorListener,
             sensorManager!!.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
@@ -127,24 +144,17 @@ class NoteDetailsFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
+        Log.i(TAG, "onPauseMethod")
         sensorManager!!.unregisterListener(sensorListener)
     }
 
     override fun onDestroyView() {
-        if (isEntryValid()) {
-            if (isNewNote())
-                viewModel.addNewNote(
-                    binding.noteTitle.text.toString(),
-                    binding.noteBody.text.toString()
-                )
-            else
-                viewModel.updateNote(
-                    note.id,
-                    binding.noteTitle.text.toString(),
-                    binding.noteBody.text.toString(),
-                    note.createdAt
-                )
-        }
+        viewModel.updateNote(
+            noteId,
+            binding.noteTitle.text.toString(),
+            binding.noteBody.text.toString(),
+            noteCreatedAt
+        )
 
         sensorManager!!.unregisterListener(sensorListener)
 
@@ -153,11 +163,12 @@ class NoteDetailsFragment : Fragment() {
         _binding = null
     }
 
-    private fun isEntryValid(): Boolean {
-        return !isNewNote() || binding.noteBody.text?.isNotEmpty() == true
-    }
-
     private fun isNewNote(): Boolean {
         return args.noteId == -1
+    }
+
+
+    private companion object {
+        const val TAG = "NotesApp.NotesDetails"
     }
 }

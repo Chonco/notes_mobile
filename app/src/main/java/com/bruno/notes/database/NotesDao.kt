@@ -9,32 +9,36 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface NotesDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(note: Note)
+    suspend fun insertNote(note: Note): Long
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertImage(image: Image)
+    suspend fun insertImage(image: Image): Long
 
     @Update
-    suspend fun update(note: Note)
+    suspend fun updateNote(note: Note)
 
     @Delete
-    suspend fun delete(note: Note)
+    suspend fun deleteNote(note: Note)
+
+    @Delete
+    suspend fun deleteImage(image: Image)
 
     @Query("SELECT * FROM note")
-    fun getAll(): Flow<List<Note>>
+    fun getAllNotes(): Flow<List<Note>>
 
     @Query("SELECT * FROM note ORDER BY created_at DESC")
-    fun getAllSortedByCreatedAt(): Flow<List<Note>>
+    fun getAllNotesSortedByCreatedAt(): Flow<List<Note>>
 
     @Query("SELECT * FROM note WHERE id = :id")
-    fun getById(id: Int): Flow<Note>
+    fun getNoteById(id: Long): Flow<Note>
 
     @Transaction
     @Query("SELECT * FROM note WHERE id = :noteId")
-    fun getNoteWithImagesByNoteId(noteId: Int): Flow<NoteWithImages>
+    fun getNoteWithImagesByNoteId(noteId: Long): Flow<NoteWithImages>
 
     @Query("SELECT * FROM note WHERE note_title LIKE '%' || :searchTerm || '%' OR note_body LIKE '%' || :searchTerm || '%'")
-    fun search(searchTerm: String): Flow<List<Note>>
+    fun searchNotes(searchTerm: String): Flow<List<Note>>
 
-
+    @Query("SELECT id FROM note ORDER BY id DESC LIMIT 1")
+    fun getIdOfLastInsertedNote(): Flow<Long>
 }
