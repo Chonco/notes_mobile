@@ -129,6 +129,8 @@ class TakePictureFragment : Fragment() {
     }
 
     private fun returnToPrevPage() {
+        takePictureCommunication.comesFromTakePicture = true
+        takePictureCommunication.noteId = args.noteId.toLong()
         findNavController().navigateUp()
     }
 

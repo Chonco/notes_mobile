@@ -2,6 +2,8 @@ package com.bruno.notes.helpers
 
 class TakePictureAndDetailsCommunication {
     var savedPicture = false
+    var comesFromTakePicture = false
+    var noteId: Long = (-1).toLong()
 
     companion object {
         private var INSTANCE: TakePictureAndDetailsCommunication? = null

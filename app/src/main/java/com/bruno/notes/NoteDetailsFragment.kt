@@ -43,7 +43,7 @@ class NoteDetailsFragment : Fragment() {
 
     private var sensorManager: SensorManager? = null
 
-    val takePictureCommunication = TakePictureAndDetailsCommunication.getInstance()
+    private val takePictureCommunication = TakePictureAndDetailsCommunication.getInstance()
 
     private val sensorListener = SensorShakeListener {
         onPause()
@@ -92,12 +92,16 @@ class NoteDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.i(TAG, "onViewCreated Method")
+        if (takePictureCommunication.comesFromTakePicture) {
+            noteId = takePictureCommunication.noteId
+            takePictureCommunication.comesFromTakePicture = false
+        } else {
+            noteId = args.noteId.toLong()
+        }
 
         if (!isNewNote()) {
-            viewModel.getNote(args.noteId.toLong())
+            viewModel.getNote(noteId)
                 .observe(this.viewLifecycleOwner) { selectedNote ->
-                    noteId = selectedNote.id
                     noteCreatedAt = selectedNote.createdAt
                     bind(selectedNote)
                 }
@@ -134,7 +138,6 @@ class NoteDetailsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        Log.i(TAG, "onResumeMethod")
         sensorManager!!.registerListener(
             sensorListener,
             sensorManager!!.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
@@ -144,7 +147,6 @@ class NoteDetailsFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        Log.i(TAG, "onPauseMethod")
         sensorManager!!.unregisterListener(sensorListener)
     }
 
@@ -164,7 +166,7 @@ class NoteDetailsFragment : Fragment() {
     }
 
     private fun isNewNote(): Boolean {
-        return args.noteId == -1
+        return noteId == (-1).toLong()
     }
 
 

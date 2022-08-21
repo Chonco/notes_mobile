@@ -18,7 +18,6 @@ class SensorShakeListener(private val handleShake: () -> Unit) : SensorEventList
 
     override fun onSensorChanged(event: SensorEvent) {
         calculateAcceleration(event)
-        println("Acceleration detected: $acceleration")
         if (acceleration > Constants.MINIMUM_ACCELERATION)
             handleShake()
     }

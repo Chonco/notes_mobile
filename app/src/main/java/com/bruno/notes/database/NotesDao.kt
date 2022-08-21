@@ -41,4 +41,7 @@ interface NotesDao {
 
     @Query("SELECT id FROM note ORDER BY id DESC LIMIT 1")
     fun getIdOfLastInsertedNote(): Flow<Long>
+
+    @Query("SELECT * FROM image WHERE note_id = :noteId")
+    fun getImagesOfNote(noteId: Long): Flow<List<Image>>
 }

@@ -51,9 +51,14 @@ class NotesListFragment : Fragment() {
         notesAdapter = NotesAdapter({
             val action = NotesListFragmentDirections.toNoteDetails(noteId = it.id.toInt())
             view.findNavController().navigate(action)
-        }, {
-            viewModel.deleteNote(it)
-        })
+        }) { note ->
+            viewModel.getImagesOfNote(note.id).observe(this.viewLifecycleOwner) { notesImages ->
+                notesImages.forEach {
+                    viewModel.deleteImage(it)
+                }
+            }
+            viewModel.deleteNote(note)
+        }
 
         val recyclerView = binding.notesListRecyclerView
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)

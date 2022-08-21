@@ -1,9 +1,11 @@
 package com.bruno.notes.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.bruno.notes.database.note.Note
 import com.bruno.notes.database.NotesDao
 import com.bruno.notes.database.image.Image
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -11,22 +13,29 @@ class NoteViewModel(private val notesDao: NotesDao) : ViewModel() {
     val allItems: LiveData<List<Note>> = notesDao.getAllNotesSortedByCreatedAt().asLiveData()
 
     private fun insertNote(note: Note) {
+        Log.i(TAG, "Note inserted")
         viewModelScope.launch { notesDao.insertNote(note) }
     }
 
     private fun insertImage(image: Image) {
+        Log.i(TAG, "Image inserted")
         viewModelScope.launch { notesDao.insertImage(image) }
     }
 
     private fun updateNote(note: Note) {
+        Log.i(TAG, "Note updated")
         viewModelScope.launch { notesDao.updateNote(note) }
     }
 
     fun deleteNote(note: Note) {
-        viewModelScope.launch { notesDao.deleteNote(note) }
+        Log.i(TAG, "Note deleted")
+        viewModelScope.launch {
+            notesDao.deleteNote(note)
+        }
     }
 
     fun deleteImage(image: Image) {
+        Log.i(TAG, "Image deleted")
         viewModelScope.launch { notesDao.deleteImage(image) }
     }
 
@@ -62,6 +71,10 @@ class NoteViewModel(private val notesDao: NotesDao) : ViewModel() {
         insertNote(note)
     }
 
+    fun getImagesOfNote(noteId: Long): LiveData<List<Image>> {
+        return notesDao.getImagesOfNote(noteId).asLiveData()
+    }
+
     fun createEmptyNote(): LiveData<Long> {
         val emptyNote = getNewNoteEntry("", "")
         insertNote(emptyNote)
@@ -91,6 +104,10 @@ class NoteViewModel(private val notesDao: NotesDao) : ViewModel() {
             noteId = noteId,
             path = path
         )
+    }
+
+    private companion object {
+        const val TAG = "NoteViewModel"
     }
 
 }
