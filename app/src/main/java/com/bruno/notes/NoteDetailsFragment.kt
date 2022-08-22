@@ -6,7 +6,6 @@ import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.text.Editable
-import android.util.Log
 import android.view.*
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.MenuHost
@@ -18,8 +17,6 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bruno.notes.adapters.ImagesAdapter
-import com.bruno.notes.adapters.NotesAdapter
-import com.bruno.notes.database.image.Image
 import com.bruno.notes.database.note.Note
 import com.bruno.notes.databinding.NoteDetailsFragmentBinding
 import com.bruno.notes.helpers.TakePictureAndDetailsCommunication
@@ -110,11 +107,17 @@ class NoteDetailsFragment : Fragment() {
                 bind(it)
             }
 
-            viewModel.getImagesOfNote(noteId).observe(this.viewLifecycleOwner) {
-                if (it.isEmpty())
+            val imagesAdapter = setRecyclerViewAndGetAdapter()
+
+            viewModel.getImagesOfNote(noteId).observe(this.viewLifecycleOwner) { listImages ->
+                if (listImages.isEmpty()) {
+                    hideImageListRecyclerView()
+                    imagesAdapter.submitList(emptyList())
                     return@observe
+                }
+
+                listImages.let { imagesAdapter.submitList(it) }
                 showImageListRecyclerView()
-                setRecyclerView(it)
             }
         } else {
             viewModel.createEmptyNote().observe(this.viewLifecycleOwner) {
@@ -147,7 +150,7 @@ class NoteDetailsFragment : Fragment() {
         binding.noteBody.requestFocus()
     }
 
-    private fun setRecyclerView(imagesList: List<Image>) {
+    private fun setRecyclerViewAndGetAdapter(): ImagesAdapter {
         val imagesAdapter = ImagesAdapter({
             TODO("GO TO FRAGMENT TO VIEW COMPLETE IMAGE")
         }, {
@@ -161,21 +164,37 @@ class NoteDetailsFragment : Fragment() {
             false
         )
         recyclerView.adapter = imagesAdapter
-        imagesAdapter.submitList(imagesList)
+        return imagesAdapter
     }
 
     private fun showImageListRecyclerView() {
+        updateUIAccordingImageListRecyclerViewVisibility(
+            R.id.image_list_recycler_view,
+            View.VISIBLE
+        )
+    }
+
+    private fun hideImageListRecyclerView() {
+        updateUIAccordingImageListRecyclerViewVisibility(
+            R.id.note_title,
+            View.GONE
+        )
+    }
+
+    private fun updateUIAccordingImageListRecyclerViewVisibility(
+        viewId: Int, visibility: Int
+    ) {
         val constraintSet = ConstraintSet()
         constraintSet.clone(binding.noteDetailsConstraintLayout)
         constraintSet.connect(
             R.id.note_body,
             ConstraintSet.TOP,
-            R.id.image_list_recycler_view,
+            viewId,
             ConstraintSet.BOTTOM
         )
         constraintSet.applyTo(binding.noteDetailsConstraintLayout)
 
-        binding.imageListRecyclerView.visibility = View.VISIBLE
+        binding.imageListRecyclerView.visibility = visibility
     }
 
     override fun onResume() {

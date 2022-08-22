@@ -94,15 +94,15 @@ class NoteViewModel(private val notesDao: NotesDao) : ViewModel() {
         return notesDao.getIdOfLastInsertedNote().asLiveData()
     }
 
-    fun addNewImage(path: String, noteId: Long) {
-        val image = getNewImageEntry(path, noteId)
+    fun addNewImage(displayName: String, noteId: Long) {
+        val image = getNewImageEntry(displayName, noteId)
         insertImage(image)
     }
 
-    private fun getNewImageEntry(path: String, noteId: Long): Image {
+    private fun getNewImageEntry(displayName: String, noteId: Long): Image {
         return Image(
             noteId = noteId,
-            path = path
+            displayName = displayName
         )
     }
 

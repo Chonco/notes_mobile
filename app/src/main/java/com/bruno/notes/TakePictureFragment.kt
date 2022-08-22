@@ -67,7 +67,6 @@ class TakePictureFragment : Fragment() {
             requestMultiplePermissions.launch(REQUIRED_PERMISSIONS)
 
         binding.cancelImageCapture.setOnClickListener {
-            takePictureCommunication.savedPicture = false
             returnToPrevPage()
         }
 
@@ -108,7 +107,6 @@ class TakePictureFragment : Fragment() {
 
                 override fun onError(exception: ImageCaptureException) {
                     Log.e(TAG, "Photo capture failed: ${exception.message}", exception)
-                    takePictureCommunication.savedPicture = false
                     returnToPrevPage()
                 }
             }
@@ -120,8 +118,6 @@ class TakePictureFragment : Fragment() {
             "$displayName.jpg",
             args.noteId.toLong()
         )
-
-        takePictureCommunication.savedPicture = true
     }
 
     private fun returnToPrevPage() {

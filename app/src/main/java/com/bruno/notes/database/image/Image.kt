@@ -12,6 +12,6 @@ data class Image(
     @ColumnInfo(name = "note_id")
     val noteId: Long = 0,
 
-    @ColumnInfo(name = "path")
-    val path: String
+    @ColumnInfo(name = "display_name")
+    val displayName: String
 )
