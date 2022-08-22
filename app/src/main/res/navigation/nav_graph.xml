@@ -34,6 +34,12 @@
             app:destination="@id/take_picture_nav_fragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim" />
+
+        <action
+            android:id="@+id/view_full_image_action"
+            app:destination="@+id/view_full_image_fragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
     </fragment>
 
     <fragment
@@ -45,5 +51,16 @@
             android:name="noteId"
             android:defaultValue="-1"
             app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/view_full_image_fragment"
+        android:name="com.bruno.notes.ImageViewFragment"
+        android:label="@string/full_image_view_fragment"
+        tools:layout="@layout/fragment_image_view">
+        <argument
+            android:name="noteUri"
+            app:argType="android.net.Uri"
+            app:nullable="false" />
     </fragment>
 </navigation>

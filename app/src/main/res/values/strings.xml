@@ -6,6 +6,8 @@
     <string name="notes_details_fragment_label">Note\'s Details</string>
     <string name="note_details_fragment_label">Note Details</string>
     <string name="take_picture_fragment_label">Take Picture</string>
+    <string name="take_photo_button_label">Take Photo</string>
+    <string name="full_image_view_fragment">View Full Image</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
     <string name="title_hint">Title</string>
@@ -15,7 +17,6 @@
     <string name="cancel_option_text">Cancel</string>
     <string name="delete_body_alert_title">Delete body content</string>
     <string name="delete_body_alert_body">Are you sure you want to delete yours note\'s content</string>
-    <string name="take_photo_button_label">Take Photo</string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris

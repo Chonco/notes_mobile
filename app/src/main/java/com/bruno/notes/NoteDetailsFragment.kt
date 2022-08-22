@@ -36,7 +36,7 @@ class NoteDetailsFragment : Fragment() {
     }
 
     private lateinit var imagesAdapter: ImagesAdapter
-
+    private var goingToTakePicture = false
     private var noteId: Long = -1
     private lateinit var noteCreatedAt: Date
 
@@ -97,6 +97,8 @@ class NoteDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        goingToTakePicture = false
+
         if (takePictureCommunication.comesFromTakePicture) {
             noteId = takePictureCommunication.noteId
             takePictureCommunication.comesFromTakePicture = false
@@ -104,13 +106,13 @@ class NoteDetailsFragment : Fragment() {
             noteId = args.noteId.toLong()
         }
 
+        imagesAdapter = setRecyclerViewAndGetAdapter()
+
         if (!isNewNote()) {
             viewModel.getNote(noteId).observe(this.viewLifecycleOwner) {
                 noteCreatedAt = it.createdAt
                 bind(it)
             }
-
-            imagesAdapter = setRecyclerViewAndGetAdapter()
 
             viewModel.getImagesOfNote(noteId).observe(this.viewLifecycleOwner) { listImages ->
                 if (listImages.isEmpty()) {
@@ -140,6 +142,7 @@ class NoteDetailsFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.add_image_option -> {
+                        goingToTakePicture = true
                         val action =
                             NoteDetailsFragmentDirections.takePicture(noteId = noteId.toInt())
                         view.findNavController().navigate(action)
@@ -155,7 +158,8 @@ class NoteDetailsFragment : Fragment() {
 
     private fun setRecyclerViewAndGetAdapter(): ImagesAdapter {
         val imagesAdapter = ImagesAdapter({
-            TODO("GO TO FRAGMENT TO VIEW COMPLETE IMAGE")
+            val action = NoteDetailsFragmentDirections.viewFullImageAction(it)
+            view?.findNavController()?.navigate(action)
         }, {
             viewModel.deleteImage(it)
         }, requireActivity())
@@ -216,8 +220,9 @@ class NoteDetailsFragment : Fragment() {
 
     override fun onDestroyView() {
         if (
-            binding.noteTitle.text.toString().isNotEmpty() &&
-            binding.noteBody.text.toString().isNotEmpty() &&
+            goingToTakePicture ||
+            binding.noteTitle.text.toString().isNotEmpty() ||
+            binding.noteBody.text.toString().isNotEmpty() ||
             imagesAdapter.currentList.isNotEmpty()
         ) {
             viewModel.updateNote(
