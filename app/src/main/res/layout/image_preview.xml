@@ -19,6 +19,7 @@
     </com.google.android.material.card.MaterialCardView>
 
     <ImageButton
+        android:id="@+id/delete_image_button"
         style="?attr/materialIconButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="27dp"

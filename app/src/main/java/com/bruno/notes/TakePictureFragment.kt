@@ -102,9 +102,7 @@ class TakePictureFragment : Fragment() {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     val msg = "Photo saved successfully"
                     Toast.makeText(requireActivity().baseContext, msg, Toast.LENGTH_SHORT).show()
-                    Log.d(TAG, msg)
-
-                    saveImagePathInDB(outputFileResults)
+                    saveImageDisplayName(name)
                     returnToPrevPage()
                 }
 
@@ -117,13 +115,11 @@ class TakePictureFragment : Fragment() {
         )
     }
 
-    private fun saveImagePathInDB(outputFileResults: ImageCapture.OutputFileResults) {
-        outputFileResults.savedUri?.path?.let {
-            viewModel.addNewImage(
-                it,
-                args.noteId.toLong()
-            )
-        }
+    private fun saveImageDisplayName(displayName: String) {
+        viewModel.addNewImage(
+            "$displayName.jpg",
+            args.noteId.toLong()
+        )
 
         takePictureCommunication.savedPicture = true
     }

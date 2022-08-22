@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.util.Log
 import android.view.*
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -15,6 +16,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.bruno.notes.adapters.ImagesAdapter
+import com.bruno.notes.adapters.NotesAdapter
+import com.bruno.notes.database.image.Image
 import com.bruno.notes.database.note.Note
 import com.bruno.notes.databinding.NoteDetailsFragmentBinding
 import com.bruno.notes.helpers.TakePictureAndDetailsCommunication
@@ -100,11 +105,17 @@ class NoteDetailsFragment : Fragment() {
         }
 
         if (!isNewNote()) {
-            viewModel.getNote(noteId)
-                .observe(this.viewLifecycleOwner) { selectedNote ->
-                    noteCreatedAt = selectedNote.createdAt
-                    bind(selectedNote)
-                }
+            viewModel.getNote(noteId).observe(this.viewLifecycleOwner) {
+                noteCreatedAt = it.createdAt
+                bind(it)
+            }
+
+            viewModel.getImagesOfNote(noteId).observe(this.viewLifecycleOwner) {
+                if (it.isEmpty())
+                    return@observe
+                showImageListRecyclerView()
+                setRecyclerView(it)
+            }
         } else {
             viewModel.createEmptyNote().observe(this.viewLifecycleOwner) {
                 noteId = it
@@ -134,6 +145,37 @@ class NoteDetailsFragment : Fragment() {
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         binding.noteBody.requestFocus()
+    }
+
+    private fun setRecyclerView(imagesList: List<Image>) {
+        val imagesAdapter = ImagesAdapter({
+            TODO("GO TO FRAGMENT TO VIEW COMPLETE IMAGE")
+        }, {
+            viewModel.deleteImage(it)
+        }, requireActivity())
+
+        val recyclerView = binding.imageListRecyclerView
+        recyclerView.layoutManager = LinearLayoutManager(
+            requireContext(),
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
+        recyclerView.adapter = imagesAdapter
+        imagesAdapter.submitList(imagesList)
+    }
+
+    private fun showImageListRecyclerView() {
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(binding.noteDetailsConstraintLayout)
+        constraintSet.connect(
+            R.id.note_body,
+            ConstraintSet.TOP,
+            R.id.image_list_recycler_view,
+            ConstraintSet.BOTTOM
+        )
+        constraintSet.applyTo(binding.noteDetailsConstraintLayout)
+
+        binding.imageListRecyclerView.visibility = View.VISIBLE
     }
 
     override fun onResume() {
