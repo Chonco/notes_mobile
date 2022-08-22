@@ -3,6 +3,8 @@
     <style name="Base.Theme.Notes" parent="Theme.Material3.Light.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorAccent">#1231</item>
+        <item name="android:colorAccent" >#1231</item>
     </style>
 
     <style name="Theme.Notes" parent="Base.Theme.Notes" />

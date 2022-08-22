@@ -22,7 +22,7 @@ class SensorShakeListener(private val handleShake: () -> Unit) : SensorEventList
             handleShake()
     }
 
-    override fun onAccuracyChanged(p0: Sensor?, p1: Int) { }
+    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {}
 
     private fun calculateAcceleration(event: SensorEvent) {
         val x = event.values[0]

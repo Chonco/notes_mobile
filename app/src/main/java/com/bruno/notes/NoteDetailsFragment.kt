@@ -6,23 +6,26 @@ import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import android.view.*
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.bruno.notes.adapters.ImagesAdapter
 import com.bruno.notes.database.note.Note
 import com.bruno.notes.databinding.NoteDetailsFragmentBinding
+import com.bruno.notes.helpers.TakePictureAndDetailsCommunication
 import com.bruno.notes.listeners.SensorShakeListener
 import com.bruno.notes.viewmodel.NoteViewModel
 import com.bruno.notes.viewmodel.NoteViewModelFactory
 import java.util.*
 
-/**
- * A simple [Fragment] subclass as the second destination in the navigation.
- */
 class NoteDetailsFragment : Fragment() {
     private val args: NoteDetailsFragmentArgs by navArgs()
 
@@ -32,7 +35,10 @@ class NoteDetailsFragment : Fragment() {
         )
     }
 
-    private lateinit var note: Note
+    private lateinit var imagesAdapter: ImagesAdapter
+    private var goingToTakePicture = false
+    private var noteId: Long = -1
+    private lateinit var noteCreatedAt: Date
 
     private var _binding: NoteDetailsFragmentBinding? = null
 
@@ -41,6 +47,8 @@ class NoteDetailsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var sensorManager: SensorManager? = null
+
+    private val takePictureCommunication = TakePictureAndDetailsCommunication.getInstance()
 
     private val sensorListener = SensorShakeListener {
         onPause()
@@ -89,10 +97,39 @@ class NoteDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        goingToTakePicture = false
+
+        if (takePictureCommunication.comesFromTakePicture) {
+            noteId = takePictureCommunication.noteId
+            takePictureCommunication.comesFromTakePicture = false
+        } else {
+            noteId = args.noteId.toLong()
+        }
+
+        imagesAdapter = setRecyclerViewAndGetAdapter()
+
         if (!isNewNote()) {
-            viewModel.getNote(args.noteId).observe(this.viewLifecycleOwner) { selectedNote ->
-                note = selectedNote
-                bind(note)
+            viewModel.getNote(noteId).observe(this.viewLifecycleOwner) {
+                noteCreatedAt = it.createdAt
+                bind(it)
+            }
+
+            viewModel.getImagesOfNote(noteId).observe(this.viewLifecycleOwner) { listImages ->
+                if (listImages.isEmpty()) {
+                    hideImageListRecyclerView()
+                    imagesAdapter.submitList(emptyList())
+                    return@observe
+                }
+
+                listImages.let { imagesAdapter.submitList(it) }
+                showImageListRecyclerView()
+            }
+        } else {
+            viewModel.createEmptyNote().observe(this.viewLifecycleOwner) {
+                noteId = it
+                viewModel.getNote(it).observe(this.viewLifecycleOwner) { emptyNote ->
+                    noteCreatedAt = emptyNote.createdAt
+                }
             }
         }
 
@@ -105,7 +142,10 @@ class NoteDetailsFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.add_image_option -> {
-
+                        goingToTakePicture = true
+                        val action =
+                            NoteDetailsFragmentDirections.takePicture(noteId = noteId.toInt())
+                        view.findNavController().navigate(action)
                         return true
                     }
                     else -> false
@@ -114,6 +154,54 @@ class NoteDetailsFragment : Fragment() {
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         binding.noteBody.requestFocus()
+    }
+
+    private fun setRecyclerViewAndGetAdapter(): ImagesAdapter {
+        val imagesAdapter = ImagesAdapter({
+            val action = NoteDetailsFragmentDirections.viewFullImageAction(it)
+            view?.findNavController()?.navigate(action)
+        }, {
+            viewModel.deleteImage(it)
+        }, requireActivity())
+
+        val recyclerView = binding.imageListRecyclerView
+        recyclerView.layoutManager = LinearLayoutManager(
+            requireContext(),
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
+        recyclerView.adapter = imagesAdapter
+        return imagesAdapter
+    }
+
+    private fun showImageListRecyclerView() {
+        updateUIAccordingImageListRecyclerViewVisibility(
+            R.id.image_list_recycler_view,
+            View.VISIBLE
+        )
+    }
+
+    private fun hideImageListRecyclerView() {
+        updateUIAccordingImageListRecyclerViewVisibility(
+            R.id.note_title,
+            View.GONE
+        )
+    }
+
+    private fun updateUIAccordingImageListRecyclerViewVisibility(
+        viewId: Int, visibility: Int
+    ) {
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(binding.noteDetailsConstraintLayout)
+        constraintSet.connect(
+            R.id.note_body,
+            ConstraintSet.TOP,
+            viewId,
+            ConstraintSet.BOTTOM
+        )
+        constraintSet.applyTo(binding.noteDetailsConstraintLayout)
+
+        binding.imageListRecyclerView.visibility = visibility
     }
 
     override fun onResume() {
@@ -131,19 +219,21 @@ class NoteDetailsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        if (isEntryValid()) {
-            if (isNewNote())
-                viewModel.addNewNote(
-                    binding.noteTitle.text.toString(),
-                    binding.noteBody.text.toString()
-                )
-            else
-                viewModel.updateNote(
-                    note.id,
-                    binding.noteTitle.text.toString(),
-                    binding.noteBody.text.toString(),
-                    note.createdAt
-                )
+        if (
+            goingToTakePicture ||
+            binding.noteTitle.text.toString().isNotEmpty() ||
+            binding.noteBody.text.toString().isNotEmpty() ||
+            imagesAdapter.currentList.isNotEmpty()
+        ) {
+            viewModel.updateNote(
+                noteId,
+                binding.noteTitle.text.toString(),
+                binding.noteBody.text.toString(),
+                noteCreatedAt
+            )
+        } else {
+            Log.i(TAG, "Delete note because it's empty")
+            viewModel.deleteNote(noteId)
         }
 
         sensorManager!!.unregisterListener(sensorListener)
@@ -153,11 +243,12 @@ class NoteDetailsFragment : Fragment() {
         _binding = null
     }
 
-    private fun isEntryValid(): Boolean {
-        return !isNewNote() || binding.noteBody.text?.isNotEmpty() == true
+    private fun isNewNote(): Boolean {
+        return noteId == (-1).toLong()
     }
 
-    private fun isNewNote(): Boolean {
-        return args.noteId == -1
+
+    private companion object {
+        const val TAG = "NotesApp.NotesDetails"
     }
 }
