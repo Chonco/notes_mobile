@@ -6,6 +6,7 @@ import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import android.view.*
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.MenuHost
@@ -33,6 +34,8 @@ class NoteDetailsFragment : Fragment() {
             (activity?.application as NotesApplication).database.noteDao()
         )
     }
+
+    private lateinit var imagesAdapter: ImagesAdapter
 
     private var noteId: Long = -1
     private lateinit var noteCreatedAt: Date
@@ -107,7 +110,7 @@ class NoteDetailsFragment : Fragment() {
                 bind(it)
             }
 
-            val imagesAdapter = setRecyclerViewAndGetAdapter()
+            imagesAdapter = setRecyclerViewAndGetAdapter()
 
             viewModel.getImagesOfNote(noteId).observe(this.viewLifecycleOwner) { listImages ->
                 if (listImages.isEmpty()) {
@@ -212,12 +215,21 @@ class NoteDetailsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        viewModel.updateNote(
-            noteId,
-            binding.noteTitle.text.toString(),
-            binding.noteBody.text.toString(),
-            noteCreatedAt
-        )
+        if (
+            binding.noteTitle.text.toString().isNotEmpty() &&
+            binding.noteBody.text.toString().isNotEmpty() &&
+            imagesAdapter.currentList.isNotEmpty()
+        ) {
+            viewModel.updateNote(
+                noteId,
+                binding.noteTitle.text.toString(),
+                binding.noteBody.text.toString(),
+                noteCreatedAt
+            )
+        } else {
+            Log.i(TAG, "Delete note because it's empty")
+            viewModel.deleteNote(noteId)
+        }
 
         sensorManager!!.unregisterListener(sensorListener)
 

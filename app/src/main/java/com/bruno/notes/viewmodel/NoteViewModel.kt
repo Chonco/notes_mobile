@@ -34,6 +34,13 @@ class NoteViewModel(private val notesDao: NotesDao) : ViewModel() {
         }
     }
 
+    fun deleteNote(id: Long) {
+        Log.i(TAG, "Note deleted")
+        viewModelScope.launch {
+            notesDao.deleteNoteWithId(id)
+        }
+    }
+
     fun deleteImage(image: Image) {
         Log.i(TAG, "Image deleted")
         viewModelScope.launch { notesDao.deleteImage(image) }
