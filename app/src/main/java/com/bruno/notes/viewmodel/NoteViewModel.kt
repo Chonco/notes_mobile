@@ -5,7 +5,6 @@ import androidx.lifecycle.*
 import com.bruno.notes.database.note.Note
 import com.bruno.notes.database.NotesDao
 import com.bruno.notes.database.image.Image
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -53,7 +52,13 @@ class NoteViewModel(private val notesDao: NotesDao) : ViewModel() {
         createdAt: Date,
         updatedAt: Date
     ): Note {
-        return Note(id, title, body, java.sql.Date(createdAt.time), java.sql.Date(updatedAt.time))
+        return Note(
+            id = id,
+            title = title,
+            body = body,
+            createdAt = java.sql.Date(createdAt.time),
+            updatedAt = java.sql.Date(updatedAt.time)
+        )
     }
 
     fun updateNote(id: Long, title: String, body: String, createdAt: Date) {
