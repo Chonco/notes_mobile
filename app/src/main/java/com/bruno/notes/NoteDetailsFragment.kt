@@ -1,17 +1,23 @@
 package com.bruno.notes
 
+import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
+import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.text.Editable
 import android.util.Log
 import android.view.*
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.content.ContextCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
@@ -20,6 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bruno.notes.adapters.ImagesAdapter
 import com.bruno.notes.database.note.Note
 import com.bruno.notes.databinding.NoteDetailsFragmentBinding
+import com.bruno.notes.helpers.NotificationScheduler
 import com.bruno.notes.helpers.TakePictureAndDetailsCommunication
 import com.bruno.notes.listeners.SensorShakeListener
 import com.bruno.notes.viewmodel.NoteViewModel
@@ -37,6 +44,7 @@ class NoteDetailsFragment : Fragment() {
 
     private lateinit var imagesAdapter: ImagesAdapter
     private var goingToTakePicture = false
+
     private var noteId: Long = -1
     private lateinit var noteCreatedAt: Date
 
@@ -68,6 +76,19 @@ class NoteDetailsFragment : Fragment() {
                 .create()
         }?.show()
     }
+
+    private val requestMultiplePermissions =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            if (allPermissionsGranted())
+                startScheduleNotificationProcess()
+            else {
+                Toast.makeText(
+                    requireActivity(),
+                    "Permissions not granted by the user",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -148,12 +169,38 @@ class NoteDetailsFragment : Fragment() {
                         view.findNavController().navigate(action)
                         return true
                     }
+                    R.id.schedule_notification -> {
+                        if (allPermissionsGranted()) {
+                            startScheduleNotificationProcess()
+                        } else {
+                            requestMultiplePermissions.launch(REQUIRED_PERMISSIONS)
+                        }
+                        return true
+                    }
                     else -> false
                 }
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         binding.noteBody.requestFocus()
+    }
+
+    private fun startScheduleNotificationProcess() {
+        NotificationScheduler(
+            noteId,
+            noteCreatedAt
+        ).scheduleNotification(
+            requireContext(),
+            requireActivity().supportFragmentManager
+        )
+
+    }
+
+    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(
+            requireActivity().baseContext,
+            it
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun setRecyclerViewAndGetAdapter(): ImagesAdapter {
@@ -248,7 +295,10 @@ class NoteDetailsFragment : Fragment() {
     }
 
 
-    private companion object {
-        const val TAG = "NotesApp.NotesDetails"
+    companion object {
+        private const val TAG = "NotesApp.NotesDetails"
+        private val REQUIRED_PERMISSIONS = mutableListOf(
+            Manifest.permission.SCHEDULE_EXACT_ALARM
+        ).toTypedArray()
     }
 }

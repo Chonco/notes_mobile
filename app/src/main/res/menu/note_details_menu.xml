@@ -5,4 +5,9 @@
         android:id="@+id/add_image_option"
         android:title="@string/add_image_menu_option"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/schedule_notification"
+        android:title="@string/schedule_notification"
+        app:showAsAction="ifRoom" />
 </menu>

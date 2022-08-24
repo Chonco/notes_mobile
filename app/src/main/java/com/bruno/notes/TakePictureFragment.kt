@@ -167,8 +167,7 @@ class TakePictureFragment : Fragment() {
         const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         val REQUIRED_PERMISSIONS =
             mutableListOf(
-                Manifest.permission.CAMERA,
-                Manifest.permission.RECORD_AUDIO
+                Manifest.permission.CAMERA
             ).toTypedArray()
     }
 }

@@ -5,7 +5,7 @@ import com.bruno.notes.database.converters.DateConverter
 import java.sql.Date
 
 @Entity(tableName = "note")
-@TypeConverters(value = arrayOf(DateConverter::class))
+@TypeConverters(value = [DateConverter::class])
 data class Note(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
