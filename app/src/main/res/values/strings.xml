@@ -2,10 +2,26 @@
     <string name="app_name">Notes</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
+    <string name="notes_list_fragment_label">Notes List</string>
+    <string name="notes_details_fragment_label">Note\'s Details</string>
+    <string name="note_details_fragment_label">Note Details</string>
+    <string name="take_picture_fragment_label">Take Picture</string>
+    <string name="take_photo_button_label">Take Photo</string>
+    <string name="full_image_view_fragment">View Full Image</string>
+    <string name="notification_channel_name">Notes App</string>
+    <string name="notification_channel_description">Notes App notification channel</string>
+    <string name="notification_channel_id">NotesApp</string>
+    <string name="notification_title">Note Reminder</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
+    <string name="title_hint">Title</string>
+    <string name="add_image_menu_option">Add Image</string>
+    <string name="schedule_notification">Schedule Notification</string>
+    <string name="search_menu_option">Search</string>
+    <string name="delete_option_text">Delete</string>
+    <string name="cancel_option_text">Cancel</string>
+    <string name="delete_body_alert_title">Delete body content</string>
+    <string name="delete_body_alert_body">Are you sure you want to delete yours note\'s content</string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
@@ -43,4 +59,9 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
+
+    <string name="edit_button_label">Edit</string>
+    <string name="delete_button_label">Delete</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -4,11 +4,21 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/CodingProjects/Notes/app/src/main/res/layout/activity_main.xml" value="0.2115036231884058" />
+        <entry key="..\:/CodingProjects/notes_mobile/app/src/main/res/drawable/ic_baseline_search_24.xml" value="0.2965" />
+        <entry key="..\:/CodingProjects/notes_mobile/app/src/main/res/drawable/x_icon.xml" value="0.2965" />
         <entry key="..\:/CodingProjects/notes_mobile/app/src/main/res/layout/activity_main.xml" value="0.3482789855072464" />
         <entry key="..\:/CodingProjects/notes_mobile/app/src/main/res/layout/content_main.xml" value="0.3482789855072464" />
         <entry key="..\:/CodingProjects/notes_mobile/app/src/main/res/layout/fragment_first.xml" value="0.3482789855072464" />
+        <entry key="..\:/CodingProjects/notes_mobile/app/src/main/res/layout/fragment_image_view.xml" value="0.1" />
         <entry key="..\:/CodingProjects/notes_mobile/app/src/main/res/layout/fragment_second.xml" value="0.3482789855072464" />
+        <entry key="..\:/CodingProjects/notes_mobile/app/src/main/res/layout/fragment_take_picture.xml" value="0.3625" />
+        <entry key="..\:/CodingProjects/notes_mobile/app/src/main/res/layout/image_preview.xml" value="0.33" />
+        <entry key="..\:/CodingProjects/notes_mobile/app/src/main/res/layout/note_details_fragment.xml" value="0.25" />
+        <entry key="..\:/CodingProjects/notes_mobile/app/src/main/res/layout/note_preview_card.xml" value="0.33" />
+        <entry key="..\:/CodingProjects/notes_mobile/app/src/main/res/layout/notes_list_fragment.xml" value="0.24074074074074073" />
         <entry key="..\:/CodingProjects/notes_mobile/app/src/main/res/menu/menu_main.xml" value="0.3625" />
+        <entry key="..\:/CodingProjects/notes_mobile/app/src/main/res/menu/note_details_menu.xml" value="0.3625" />
+        <entry key="..\:/CodingProjects/notes_mobile/app/src/main/res/menu/notes_list_menu.xml" value="0.3625" />
       </map>
     </option>
   </component>
