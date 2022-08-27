@@ -15,9 +15,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.MenuHost
-import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
@@ -29,6 +27,7 @@ import com.bruno.notes.databinding.NoteDetailsFragmentBinding
 import com.bruno.notes.helpers.NotificationScheduler
 import com.bruno.notes.helpers.TakePictureAndDetailsCommunication
 import com.bruno.notes.listeners.SensorShakeListener
+import com.bruno.notes.menuproviders.NoteDetailsMenuProvider
 import com.bruno.notes.viewmodel.NoteViewModel
 import com.bruno.notes.viewmodel.NoteViewModelFactory
 import java.util.*
@@ -97,12 +96,11 @@ class NoteDetailsFragment : Fragment() {
         _binding = NoteDetailsFragmentBinding.inflate(inflater, container, false)
 
         sensorManager = activity?.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        Objects.requireNonNull(sensorManager)
-            ?.registerListener(
-                sensorListener,
-                sensorManager!!.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                SensorManager.SENSOR_DELAY_NORMAL
-            )
+        sensorManager!!.registerListener(
+            sensorListener,
+            sensorManager!!.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+            SensorManager.SENSOR_DELAY_NORMAL
+        )
 
         return binding.root
     }
@@ -155,32 +153,18 @@ class NoteDetailsFragment : Fragment() {
         }
 
         val menuHost: MenuHost = requireActivity()
-        menuHost.addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.note_details_menu, menu)
-            }
 
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                return when (menuItem.itemId) {
-                    R.id.add_image_option -> {
-                        goingToTakePicture = true
-                        val action =
-                            NoteDetailsFragmentDirections.takePicture(noteId = noteId.toInt())
-                        view.findNavController().navigate(action)
-                        return true
-                    }
-                    R.id.schedule_notification -> {
-                        if (allPermissionsGranted()) {
-                            startScheduleNotificationProcess()
-                        } else {
-                            requestMultiplePermissions.launch(REQUIRED_PERMISSIONS)
-                        }
-                        return true
-                    }
-                    else -> false
-                }
-            }
-        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+        menuHost.addMenuProvider(NoteDetailsMenuProvider({
+            goingToTakePicture = true
+            val action =
+                NoteDetailsFragmentDirections.takePicture(noteId = noteId.toInt())
+            view.findNavController().navigate(action)
+        }, {
+            if (allPermissionsGranted())
+                startScheduleNotificationProcess()
+            else
+                requestMultiplePermissions.launch(REQUIRED_PERMISSIONS)
+        }), viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         binding.noteBody.requestFocus()
     }
@@ -193,7 +177,6 @@ class NoteDetailsFragment : Fragment() {
             requireContext(),
             requireActivity().supportFragmentManager
         )
-
     }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
@@ -266,12 +249,7 @@ class NoteDetailsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        if (
-            goingToTakePicture ||
-            binding.noteTitle.text.toString().isNotEmpty() ||
-            binding.noteBody.text.toString().isNotEmpty() ||
-            imagesAdapter.currentList.isNotEmpty()
-        ) {
+        if (isNotEmptyOrIsGoingToTakePicture()) {
             viewModel.updateNote(
                 noteId,
                 binding.noteTitle.text.toString(),
@@ -288,6 +266,13 @@ class NoteDetailsFragment : Fragment() {
         super.onDestroyView()
 
         _binding = null
+    }
+
+    private fun isNotEmptyOrIsGoingToTakePicture(): Boolean {
+        return goingToTakePicture ||
+                binding.noteTitle.text.toString().isNotEmpty() ||
+                binding.noteBody.text.toString().isNotEmpty() ||
+                imagesAdapter.currentList.isNotEmpty()
     }
 
     private fun isNewNote(): Boolean {

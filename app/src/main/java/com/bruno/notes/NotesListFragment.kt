@@ -14,7 +14,10 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bruno.notes.adapters.NotesAdapter
+import com.bruno.notes.database.note.Note
 import com.bruno.notes.databinding.NotesListFragmentBinding
+import com.bruno.notes.listeners.SearchInputWatcher
+import com.bruno.notes.menuproviders.NotesListMenuProvider
 import com.bruno.notes.viewmodel.NoteViewModel
 import com.bruno.notes.viewmodel.NoteViewModelFactory
 
@@ -48,17 +51,7 @@ class NotesListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        notesAdapter = NotesAdapter({
-            val action = NotesListFragmentDirections.toNoteDetails(noteId = it.id.toInt())
-            view.findNavController().navigate(action)
-        }) { note ->
-            viewModel.getImagesOfNote(note.id).observe(this.viewLifecycleOwner) { notesImages ->
-                notesImages.forEach {
-                    viewModel.deleteImage(it)
-                }
-            }
-            viewModel.deleteNote(note)
-        }
+        notesAdapter = NotesAdapter({ onNoteClicked(it, view) }, { onDeleteNote(it) })
 
         val recyclerView = binding.notesListRecyclerView
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
@@ -70,37 +63,30 @@ class NotesListFragment : Fragment() {
             findNavController().navigate(R.id.to_note_details)
         }
 
-        binding.searchInput.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun afterTextChanged(searchInput: Editable?) {
-                observeSearchNotes(searchInput.toString())
-            }
-        })
+        binding.searchInput.addTextChangedListener(
+            SearchInputWatcher { observeSearchNotes(it) }
+        )
 
         val menuHost: MenuHost = requireActivity()
-        menuHost.addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.notes_list_menu, menu)
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                return when (menuItem.itemId) {
-                    R.id.search_menu_option -> {
-                        showSearchInput()
-                        return true
-                    }
-                    else -> false
-                }
-            }
-        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+        menuHost.addMenuProvider(
+            NotesListMenuProvider { showSearchInput() },
+            viewLifecycleOwner,
+            Lifecycle.State.RESUMED
+        )
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun onNoteClicked(note: Note, view: View) {
+        val action = NotesListFragmentDirections.toNoteDetails(noteId = note.id.toInt())
+        view.findNavController().navigate(action)
+    }
+
+    private fun onDeleteNote(note: Note) {
+        viewModel.getImagesOfNote(note.id).observe(this.viewLifecycleOwner) { notesImages ->
+            notesImages.forEach {
+                viewModel.deleteImage(it)
+            }
+        }
+        viewModel.deleteNote(note)
     }
 
     private fun showSearchInput() {
@@ -128,4 +114,10 @@ class NotesListFragment : Fragment() {
             notes.let { notesAdapter.submitList(it) }
         }
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
 }
